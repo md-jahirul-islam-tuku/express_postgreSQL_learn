@@ -22,17 +22,37 @@ const createUserIntoDB = async (payload: IUser) => {
 };
 
 const getAllUserFromDB = async () => {
-  const result = await pool.query(`SELECT * FROM users`);
+  const result = await pool.query(`SELECT
+      id,
+      name,
+      email,
+      age,
+      is_active,
+      created_at,
+      updated_at
+    FROM users`);
   return result;
 };
 
 const getSingleUserFromDB = async (id: string) => {
-  const result = await pool.query(`SELECT * FROM users WHERE id=$1`, [id]);
+  const result = await pool.query(`
+    SELECT
+      id,
+      name,
+      email,
+      age,
+      is_active,
+      created_at,
+      updated_at
+    FROM users
+    WHERE id = $1
+    `, [id]);
   return result;
 };
 
 const updateUserIntoDB = async (payload: IUser, id: string) => {
   const { name, password, age, is_active } = payload;
+  const hashedPassword = await bcrypt.hash(password, 10);
   const result = await pool.query(
     `
       UPDATE users 
@@ -42,9 +62,9 @@ const updateUserIntoDB = async (payload: IUser, id: string) => {
       age=COALESCE($3,age),
       is_active=COALESCE($4,is_active)
 
-      WHERE id=$5 RETURNING *
+      WHERE id=$5 RETURNING id, name, email, age, is_active
       `,
-    [name, password, age, is_active, id],
+    [name, hashedPassword, age, is_active, id],
   );
   return result;
 };
