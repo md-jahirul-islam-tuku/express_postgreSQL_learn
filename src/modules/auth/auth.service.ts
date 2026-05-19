@@ -27,6 +27,7 @@ const loginUserIntoDB = async (payload: {
     name: user.name,
     is_active: user.is_active,
     email: user.email,
+    role: user.role,
   };
 
   const accessToken = jwt.sign(jwtPayload, config.jwt_secret as string, {
